@@ -1,0 +1,13 @@
+# O4 textstats: adapted from Lab2 at 2c133c68828c551c80ed2152dabd2691a5eb6902.
+# One series per query. Stage3 will configure job="textstats".
+# Variables use promsteps syntax: route=/api/analyze, slo=0.02, window=25s.
+server_rps          sum(rate(http_requests_total{job="textstats",route="${route}"}[${window}]))
+server_error_rate   (sum(rate(http_requests_total{job="textstats",route="${route}",code=~"5.."}[${window}])) or vector(0)) / sum(rate(http_requests_total{job="textstats",route="${route}"}[${window}]))
+server_p99_ms       1000 * histogram_quantile(0.99, sum by (le) (rate(http_request_duration_seconds_bucket{job="textstats",route="${route}"}[${window}])))
+server_mean_ms      1000 * sum(rate(http_request_duration_seconds_sum{job="textstats",route="${route}"}[${window}])) / sum(rate(http_request_duration_seconds_count{job="textstats",route="${route}"}[${window}]))
+server_slo_good     (sum(rate(http_request_duration_seconds_bucket{job="textstats",route="${route}",code="200",le="${slo}"}[${window}])) or vector(0)) / sum(rate(http_requests_total{job="textstats",route="${route}"}[${window}]))
+cpu_cores           sum(rate(process_cpu_seconds_total{job="textstats"}[${window}]))
+cpu_ms_per_req      1000 * sum(rate(process_cpu_seconds_total{job="textstats"}[${window}])) / sum(rate(http_requests_total{job="textstats",route="${route}"}[${window}]))
+inflight_avg        avg_over_time(http_inflight_requests{job="textstats",route="${route}"}[${window}])
+cpu_wait_threads    sum(rate(process_cpu_wait_seconds_total{job="textstats"}[${window}]))
+sched_wait_p99_ms   1000 * histogram_quantile(0.99, sum by (le) (rate(go_sched_latencies_seconds_bucket{job="textstats"}[${window}])))

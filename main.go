@@ -80,7 +80,8 @@ func handleAnalyze(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, Analyze(request.Text))
 }
 
-func newMux() *http.ServeMux {
+func newMux() http.Handler {
+	monitor := newTelemetry()
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
@@ -90,7 +91,8 @@ func newMux() *http.ServeMux {
 		writeJSON(w, currentVersion())
 	})
 	mux.HandleFunc("POST /api/analyze", handleAnalyze)
-	return mux
+	mux.Handle("GET /metrics", monitor.reg.Handler())
+	return monitor.wrap(mux)
 }
 
 func main() {
@@ -109,7 +111,9 @@ func main() {
 	server := &http.Server{
 		Addr: *addr, Handler: newMux(), ReadHeaderTimeout: 5 * time.Second,
 	}
+	stopped := make(chan struct{})
 	go func() {
+		defer close(stopped)
 		<-ctx.Done()
 		shutdown, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
@@ -121,4 +125,5 @@ func main() {
 	if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Fatal(err)
 	}
+	<-stopped
 }

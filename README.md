@@ -2,7 +2,7 @@
 
 提供 HTTP 文本统计服务，作为迁入 Lab2 RED 指标、Prometheus 和资源测量方法的目标应用。
 
-当前为阶段1：业务接口、构建入口和测试。RED 接入、服务器部署、测前预测及正式测量将在后续阶段完成；当前没有声称 O4 已完成。
+当前完成阶段2：业务接口已接入RED和Linux进程CPU指标。服务器部署、Prometheus查询实测、测前预测及正式测量将在后续阶段完成；当前没有声称 O4 已完成。
 
 ## 业务规则
 
@@ -12,6 +12,7 @@
 - 请求体上限1 MiB；超限返回413；非法JSON、未知字段或多个JSON值返回400。
 - GET /healthz：返回 ok。
 - GET /version：返回构建版本、提交号、Go版本、PID和GOMAXPROCS。
+- GET /metrics：Prometheus文本格式的RED、进程和Go运行时指标；抓取不计入业务流量。
 
 ## 构建与运行
 
@@ -38,6 +39,15 @@ curl -sS http://127.0.0.1:18080/api/analyze \
 
 按 Ctrl+C 或发送 SIGTERM 可优雅停止。bin/ 为本地构建产物，不纳入Git。
 
+## 指标接入
+
+已迁入Lab2指标库，并为 /api/analyze 加入请求计数、状态码分类、耗时直方图及在途数。
+20 ms桶边界用于附加SLI，错误率按服务端5xx/全部业务请求计算；4xx与客户端错误分别解释。
+Linux额外输出累计进程CPU时间及调度等待指标，供后续资源上限测量。
+
+完整指标口径、迁移来源和本地检查方式见 [docs/METRICS.md](docs/METRICS.md)；
+PromQL见 [deploy/queries-red.txt](deploy/queries-red.txt)。并发安全检查可运行 `make race`。
+
 ## O4 后续测量约定
 
 - 统一使用20 ms（SLO=0.02）作为达标阈值；请求超时另行配置。
@@ -49,4 +59,4 @@ curl -sS http://127.0.0.1:18080/api/analyze \
 
 迁移方法来源：Qiyao-25/ops-lab2-9 的 main 提交
 2c133c68828c551c80ed2152dabd2691a5eb6902（2026-10-30读取的最新版本）。
-阶段2将参考其 internal/metrics/ 接入指标；不需要第二台主机。
+阶段2已参考其 internal/metrics/ 完成接入；不需要第二台主机。
