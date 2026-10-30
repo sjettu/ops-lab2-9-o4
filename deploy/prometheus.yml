@@ -1,0 +1,12 @@
+# Separate from the original Lab2 Prometheus on port 9090.
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+scrape_configs:
+  - job_name: textstats
+    scrape_interval: 1s
+    static_configs:
+      - targets: ['127.0.0.1:18080']
+  - job_name: node
+    static_configs:
+      - targets: ['127.0.0.1:9100']

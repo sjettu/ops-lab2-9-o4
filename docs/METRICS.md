@@ -40,12 +40,12 @@ D从进入业务观测包装器到路由处理返回，不包含网络、计划�
 ## 查询
 
 deploy/queries-red.txt 提供R、E、D及附加SLI、CPU和等待查询。
-占位符供后续promsteps使用；在Prometheus界面中应替换为实际值，例如：
+占位符供promsteps使用；在Prometheus界面中应替换为实际值，例如：
 route=/api/analyze、window=25s、slo=0.02。
 所有查询限定job=textstats，避免混入enrolld指标。
 
-本阶段验证指标输出和采集逻辑；Prometheus抓取与查询实测将在阶段3进行。
-本阶段没有服务器性能结果，不将本地功能验证当作正式压测。
+已在阶段3使用实际Prometheus和node_exporter完成本地抓取、按阶段查询及CSV生成验证，
+见 [VALIDATION.md](VALIDATION.md)。当前没有服务器性能结果，本地验证不作为正式压测。
 
 ## 本地检查
 

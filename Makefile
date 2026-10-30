@@ -19,3 +19,5 @@ race:
 build:
 	mkdir -p bin
 	CGO_ENABLED=0 $(GO) build -trimpath -ldflags "-X main.version=$(VERSION) -X main.commit=$(COMMIT)" -o bin/textstats .
+	CGO_ENABLED=0 $(GO) build -trimpath -o bin/loadgen ./cmd/loadgen
+	CGO_ENABLED=0 $(GO) build -trimpath -o bin/promsteps ./cmd/promsteps

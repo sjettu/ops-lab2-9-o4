@@ -1,0 +1,10 @@
+# Adapted from Lab2; CPU is the resource being measured.
+# Ratios range from 0 to 1. PSI may be unavailable on some kernels.
+svc_cpu_busy       sum(rate(node_cpu_seconds_total{job="node",mode!~"idle|iowait",cpu=~"${cpus}"}[${window}])) / count(node_cpu_seconds_total{job="node",mode="idle",cpu=~"${cpus}"})
+all_cpu_busy       sum(rate(node_cpu_seconds_total{job="node",mode!~"idle|iowait"}[${window}])) / count(node_cpu_seconds_total{job="node",mode="idle"})
+cpu_steal          avg(rate(node_cpu_seconds_total{job="node",mode="steal"}[${window}]))
+cpu_iowait         avg(rate(node_cpu_seconds_total{job="node",mode="iowait"}[${window}]))
+procs_running_avg  avg_over_time(node_procs_running{job="node"}[${window}])
+cpu_psi_some      rate(node_pressure_cpu_waiting_seconds_total{job="node"}[${window}])
+mem_available_min_mb min_over_time(node_memory_MemAvailable_bytes{job="node"}[${window}]) / 1048576
+swap_in_per_s     rate(node_vmstat_pswpin{job="node"}[${window}])

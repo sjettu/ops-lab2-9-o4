@@ -2,7 +2,7 @@
 
 提供 HTTP 文本统计服务，作为迁入 Lab2 RED 指标、Prometheus 和资源测量方法的目标应用。
 
-当前完成阶段2：业务接口已接入RED和Linux进程CPU指标。服务器部署、Prometheus查询实测、测前预测及正式测量将在后续阶段完成；当前没有声称 O4 已完成。
+当前完成业务接口、RED和Linux进程CPU指标接入，以及本地监控采集联调。服务器部署、测前预测及正式测量将在后续阶段完成；当前没有声称 O4 已完成。
 
 ## 业务规则
 
@@ -47,6 +47,15 @@ Linux额外输出累计进程CPU时间及调度等待指标，供后续资源上
 
 完整指标口径、迁移来源和本地检查方式见 [docs/METRICS.md](docs/METRICS.md)；
 PromQL见 [deploy/queries-red.txt](deploy/queries-red.txt)。并发安全检查可运行 `make race`。
+
+## 监控与实验采集
+
+Prometheus 使用独立端口19090，避免与原Lab2的9090冲突；业务服务18080，node_exporter默认9100。
+已迁入开放到达率压测器、按阶段查询工具、资源采集和Markdown表格脚本。
+负载输入从固定JSON文件读取，避免大文本超过命令行长度限制。
+
+安装工具、启动方式、采集命令与结果口径见 [docs/EXPERIMENT.md](docs/EXPERIMENT.md)。
+`RUN_KIND=integration` 只用于本地验证，正式数据必须在云服务器测量。
 
 ## O4 后续测量约定
 
